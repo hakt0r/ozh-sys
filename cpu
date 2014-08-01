@@ -1,0 +1,61 @@
+#!/bin/sh
+
+_copyright(){ echo "
+  ozh lightweight shell extensions
+  2008-2014 - anx @ ulzq de (Sebastian Glaser)
+  Licensed under GNU GPL v3"; }
+_license(){ echo "
+  ozh is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  ozh is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this software; see the file COPYING.  If not, write to
+  the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  Boston, MA 02111-1307 USA
+
+  http://www.gnu.org/licenses/gpl.html"; }
+
+cpu(){
+  [ "@$1" = "@-h" ] && { printf "$bblack$white cpu $R $byellow$black DELAY(0.1) $R sample DELAY seconds of cpu\n"; return 0; }
+  ( getcpu='(/cpu[^0-9]/){ t=$2+$3+$4+$5;printf "%i %i %i %i\n", $2,$3,$4,$5}'
+    calcpu='BEGIN{getline;a=$1;b=$2;c=$3;d=$4}{e=($1-a)*100;f=($2-b)*100;g=($3-c)*100;h=($4-d)*100;t=e+f+g+h;printf "%0.0f %0.0f %0.0f %0.0f\n",(e+1)/t*100,(f+1)/t*100,(g+1)/t*100,(h+1)/t*100}'
+    busybox awk "$getcpu" /proc/stat; sleep 0.1
+    busybox awk "$getcpu" /proc/stat; ) | awk "$calcpu"; }
+
+cpubar(){
+  [ "@$1" = "@-h" ] && { printf "$bblack$white cpubar $R $byellow$black WIDTH(40) $R show htop-style cpu bar\n"; return 0; }
+  cpu | awk '{a="                                        ";
+    printf "%s%s%s", "'$byellow'", substr("usr" a,0,sprintf("%0.0f",$1/2.5)), "'$R'"
+    printf "%s%s%s", "'$bred'",    substr("sys" a,0,sprintf("%0.0f",$2/2.5)), "'$R'"
+    printf "%s%s%s", "'$bblue'",   substr("nic" a,0,sprintf("%0.0f",$3/2.5)), "'$R'"
+    printf "%s%s%s", "'$bgreen'",  substr("idl" a,0,sprintf("%0.0f",$4/2.5)), "'$R'"}'; echo; }
+
+ctop(){
+  [ "@$1" = "@-h" ] && { printf "$bblack$white ctop $R $byellow$black COUNT(3) $R top COUNT cpu-using processes\n"; return 0; }
+  busybox top -bn1 | awk '
+    # ctop
+    BEGIN{for(i=0;i<4;i++){getline}}
+    /ctop/{next}
+    {$0=gensub(/[ ]\+/,"    ","g");}
+    {$0=gensub(/{.*[:\.]/,"",1);}
+    {$0=gensub(/^[ ]\+/,"",1);}
+    {$0=gensub(/\/.*\//," ","");}
+    {$0=gensub(/\[/,"",1);}
+    {$0=gensub(/\]/,"",1);}
+    {
+    for(i=NF;i>0;i--){
+      if(match($i,/[0-9]?[0-9]\.[0-9][0-9]?/)>0){ printf("%s %s%s%s%s%s%s ",$i,$i+1,$i+2,$i+3,$i+4,$i+5,$i+6); break; }
+      else printf "() "
+
+      }
+      printf "\n"
+    if(i++ > '$([ -z "$1" ] && echo 3 || echo $1)')exit(0)}'; }
+
+_cpu_help(){ cpu -h; cpubar -h; ctop -h; }

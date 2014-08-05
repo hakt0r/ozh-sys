@@ -3,6 +3,7 @@
 _copyright(){ echo "
   ozh lightweight shell extensions
   2008-2014 - anx @ ulzq de (Sebastian Glaser)
+  2008-2014 - fly @ ulzq de
   Licensed under GNU GPL v3"; }
 _license(){ echo "
   ozh is free software; you can redistribute it and/or modify
@@ -22,4 +23,9 @@ _license(){ echo "
 
   http://www.gnu.org/licenses/gpl.html"; }
 
-[ -n "$OZH_INSTALL" ] && _install_sys(){ oz install +prefix sys cpu os mem gnome sound; }
+# Memory overview
+memusage(){ ps aux | awk '
+  {if (NR > 1) print $5;
+   if (NR > 2) print "+"}
+   END { print "p" }' | dc; }
+

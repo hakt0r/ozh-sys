@@ -1,0 +1,72 @@
+#!/bin/sh
+
+_copyright(){ echo "
+  ozh lightweight shell extensions
+  2008-2014 - anx @ ulzq de (Sebastian Glaser)
+  2008-2014 - fly @ ulzq de
+  Licensed under GNU GPL v3"; }
+_license(){ echo "
+  ozh is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  ozh is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this software; see the file COPYING.  If not, write to
+  the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  Boston, MA 02111-1307 USA
+
+  http://www.gnu.org/licenses/gpl.html"; }
+
+zgnome_buttons_generic() {
+  gconftool-2 -s --type String /apps/metacity/general/button_layout "$1"; }
+
+zgnome_buttons() {
+ case $1 in
+  "l") zgnome_buttons_generic "close,minimize,maximize:"; return;;
+ esac
+ zgnome_buttons_generic ":minimize,maximize,close";
+ return; }
+
+zgmonitor(){
+  local DISPLAY=:0.0
+  if [ $# -eq 0 ]; then
+    echo usage: $(basename $0) "on|off|status"
+    exit 1
+  fi
+  if [ $1 = "off" ]; then
+    echo -en "Turning monitor off..."
+    xset dpms force off
+    echo -en "done.\nCheck:"
+    xset -q|grep "Monitor is"
+  elif [ $1 = "on" ]; then
+    echo -en "Turning monitor on..."
+    xset dpms force on
+    echo -en "done.\nCheck:"
+    xset -q|grep "Monitor is"
+  elif [ $1 = "status" ]; then
+    xset -q|sed -ne 's/^[ ]*Monitor is //p'
+  else
+    echo usage: $(basename $0) "on|off|status"
+  fi; }
+
+gpanelmon() {
+  DISPLAY=:0.0
+  gconftool-2 --type Integer -s /apps/panel/toplevels/bottom_panel_screen0/monitor $@
+  gconftool-2 --type Integer -s /apps/panel/toplevels/top_panel_screen0/monitor $@; }
+
+zgnome_wallpaper() {
+  DISPLAY=:0
+  if [ -f $1 ]; then gconftool -t string -s /desktop/gnome/background/picture_filename $1 >> /tmp/flog 2>&1; echo $1 >> /tmp/flog; else echo "file $1 not found"; zgnome_wallpaper $1; fi; }
+
+zgnome_wallpaper_random() {
+  if [ ! -d $1 ]; then echo "provide a directory"; return; fi
+  i="$(find $1 |grep '.jpg$\|.png$' | shuf -n1)"
+  if [ "$(cat ~/.wallblacklist |grep $i)" != "" ]; then zgnome_wallpaper_random $1; return; fi
+  zgnome_wallpaper $i; }
+

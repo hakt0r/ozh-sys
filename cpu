@@ -49,3 +49,4 @@ ctop(){
     if(c!=""){print c,$0}}' | sort -rn | head -n $count; }
 
 [ -n "$OZH_HELP" ] && _cpu_help(){ cpu -h; cpubar -h; ctop -h; }
+true

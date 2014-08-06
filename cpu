@@ -23,10 +23,10 @@ _license(){ echo "
   http://www.gnu.org/licenses/gpl.html"; }
 
 cpu(){
+  local calcpu='BEGIN{getline;a=$1;b=$2;c=$3;d=$4}{e=($1-a)*100;f=($2-b)*100;g=($3-c)*100;h=($4-d)*100;t=e+f+g+h;printf "%0.0f %0.0f %0.0f %0.0f\n",(e+1)/t*100,(f+1)/t*100,(g+1)/t*100,(h+1)/t*100}'
+  local getcpu='(/cpu[^0-9]/){ t=$2+$3+$4+$5;printf "%i %i %i %i\n", $2,$3,$4,$5}'
   [ "@$1" = "@-h" ] && { printf "$bblack$white cpu $R $byellow$black DELAY(0.1) $R sample DELAY seconds of cpu\n"; return 0; }
-  ( getcpu='(/cpu[^0-9]/){ t=$2+$3+$4+$5;printf "%i %i %i %i\n", $2,$3,$4,$5}'
-    calcpu='BEGIN{getline;a=$1;b=$2;c=$3;d=$4}{e=($1-a)*100;f=($2-b)*100;g=($3-c)*100;h=($4-d)*100;t=e+f+g+h;printf "%0.0f %0.0f %0.0f %0.0f\n",(e+1)/t*100,(f+1)/t*100,(g+1)/t*100,(h+1)/t*100}'
-    busybox awk "$getcpu" /proc/stat; sleep 0.1
+  ( busybox awk "$getcpu" /proc/stat; sleep 0.1
     busybox awk "$getcpu" /proc/stat; ) | awk "$calcpu"; }
 
 cpubar(){
@@ -38,24 +38,14 @@ cpubar(){
     printf "%s%s%s", "'$bgreen'",  substr("idl" a,0,sprintf("%0.0f",$4/2.5)), "'$R'"}'; echo; }
 
 ctop(){
+  local count=3; [ -n "$1" ] && count="$1"
   [ "@$1" = "@-h" ] && { printf "$bblack$white ctop $R $byellow$black COUNT(3) $R top COUNT cpu-using processes\n"; return 0; }
   busybox top -bn1 | awk '
-    # ctop
-    BEGIN{for(i=0;i<4;i++){getline}}
-    /ctop/{next}
-    {$0=gensub(/[ ]\+/,"    ","g");}
-    {$0=gensub(/{.*[:\.]/,"",1);}
-    {$0=gensub(/^[ ]\+/,"",1);}
-    {$0=gensub(/\/.*\//," ","");}
-    {$0=gensub(/\[/,"",1);}
-    {$0=gensub(/\]/,"",1);}
-    {
-    for(i=NF;i>0;i--){
-      if(match($i,/[0-9]?[0-9]\.[0-9][0-9]?/)>0){ printf("%s %s%s%s%s%s%s ",$i,$i+1,$i+2,$i+3,$i+4,$i+5,$i+6); break; }
-      else printf "() "
+    BEGIN{for(i=0;i<4;i++)getline}
+    {$0=substr($0,38,100);c=$1;$1="";
+    gsub(/^[ ]*/,"",$0); gsub(/^\{[ ]*/,"",$0); gsub(/^\[[ ]*/,"",$0);
+    gsub(/ .*/,"",$0);   gsub(/^.*\//,"",$0);
+    gsub(/\]$/,"",$0);   gsub(/\:$/,"",$0);     gsub(/\}$/,"",$0);
+    if(c!=""){print c,$0}}' | sort -rn | head -n $count; }
 
-      }
-      printf "\n"
-    if(i++ > '$([ -z "$1" ] && echo 3 || echo $1)')exit(0)}'; }
-
-_cpu_help(){ cpu -h; cpubar -h; ctop -h; }
+[ -n "$OZH_HELP" ] && _cpu_help(){ cpu -h; cpubar -h; ctop -h; }

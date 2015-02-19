@@ -23,3 +23,5 @@ _license(){ echo "
   http://www.gnu.org/licenses/gpl.html"; }
 
 [ -n "$OZH_INSTALL" ] && _install_sys(){ oz install +lib +prefix sys cpu os mem gnome sound; }
+
+true

@@ -26,6 +26,8 @@ _license(){ echo "
 [ -n "$OZH_HELP" ] && {
   _say_host_help(){ echo "[1:host] utter the hostname and a sound indicating wether its up"; }; }
 
+playon() { pv "$2" | ssh -C "$1" 'DISPLAY=:0 vlc --fullscreen -'; }
+
 splay(){ ogg123 -q $1; }
 up_sound(){ echo "/usr/share/sounds/ubuntu/stereo/button-toggle-on.ogg" ;}
 down_sound(){ echo "/usr/share/sounds/ubuntu/stereo/dialog-error.ogg" ;}
@@ -36,7 +38,7 @@ say_time(){  dspeak "The Time is `date +%I:%M%p`"; }
 sbeep(){
   app_exists sox || app_depend sox
   if [ -z $1 ]; then f=880; else f=$1; fi
-  sox -U -r 8000 -n -t sox - synth 0.5 sine $f gain -3 | play -t sox - > /dev/null 2>&1; }
+  sox -e mu-law -r 8000 -n -t sox - synth 0.5 sine $f gain -3 | play -t sox - > /dev/null 2>&1; }
 
 say_host(){ 
   HOST=$1
@@ -47,6 +49,13 @@ say_host(){
     dspeak $HOST
     splay "$(down_sound)"
   fi; }
+
+beeping(){
+    beepup(){ beep -f 440; beep -f 880; beep -f 440; beep -f 880; beep -f 440; beep -f 880; }
+    beepdn(){ beep -f 220; beep -f 440; beep -f 220; beep -f 440; beep -f 220; beep -f 440; }
+    wait_up(){ while ! ping -c1 -w1 8.8.8.8 2>&1 | grep -q 'bytes from'; do echo $?; sleep 1;done; beepup; mode=wait_dn; }
+    wait_dn(){ while ping -c1 -w1 8.8.8.8 2>&1 | grep -q 'bytes from'; do echo $?;sleep 1;done; beepdn; mode=wait_up; }
+    mode='wait_up'; while { echo $mode; }; do $mode;done; }
 
 sonar(){ echo "\
 T2dnUwACAAAAAAAAAAAAAAAAAAAAADQzjoYBHgF2b3JiaXMAAAAAAkSsAAAAAAAAAAAAAAAAAAC7

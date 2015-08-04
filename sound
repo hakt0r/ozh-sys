@@ -53,8 +53,8 @@ say_host(){
 beeping(){
     beepup(){ beep -f 440; beep -f 880; beep -f 440; beep -f 880; beep -f 440; beep -f 880; }
     beepdn(){ beep -f 220; beep -f 440; beep -f 220; beep -f 440; beep -f 220; beep -f 440; }
-    wait_up(){ while ! ping -c1 -w1 8.8.8.8 2>&1 | grep -q 'bytes from'; do echo $?; sleep 1;done; beepup; mode=wait_dn; }
-    wait_dn(){ while ping -c1 -w1 8.8.8.8 2>&1 | grep -q 'bytes from'; do echo $?;sleep 1;done; beepdn; mode=wait_up; }
+    wait_up(){ while ! ping -c1 -w1 8.8.8.8 2>&1 | Bgrep -q 'bytes from'; do echo $?; sleep 1;done; beepup; mode=wait_dn; }
+    wait_dn(){ while ping -c1 -w1 8.8.8.8 2>&1 | Bgrep -q 'bytes from'; do echo $?;sleep 1;done; beepdn; mode=wait_up; }
     mode='wait_up'; while { echo $mode; }; do $mode;done; }
 
 sonar(){ echo "\
@@ -213,11 +213,11 @@ s0nard(){
     exit
 
   elif [[ "$1" == "stop" ]];then
-    kill `ps aux|awk '/s0nard\ real/{print $2}'`
+    kill `ps aux|Bawk '/s0nard\ real/{print $2}'`
     exit
 
   elif [[ "$1" == "restart" ]];then
-    kill `ps aux|awk '/s0nard\ real/{print $2}'`
+    kill `ps aux|Bawk '/s0nard\ real/{print $2}'`
     s0nard real $AUSER 2>&1 > /dev/null &
     exit
 
@@ -229,12 +229,12 @@ s0nard(){
     exit
   fi
 
-  if iptables -L INPUT | grep -q "icmp echo-request LOG level warning"; then
+  if iptables -L INPUT | Bgrep -q "icmp echo-request LOG level warning"; then
     echo "sonard: iptables rule arleady set" >> /var/log/syslog
   else
     iptables -A INPUT -p icmp --icmp-type echo-request -j LOG
   fi
 
   while ( true ); do
-    tail -f -n0 /var/log/syslog | grep -q PROTO=ICMP && sonar;
+    tail -f -n0 /var/log/syslog | Bgrep -q PROTO=ICMP && sonar;
   done; }

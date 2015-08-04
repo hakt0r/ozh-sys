@@ -26,12 +26,12 @@ cpu(){
   local calcpu='BEGIN{getline;a=$1;b=$2;c=$3;d=$4}{e=($1-a)*100;f=($2-b)*100;g=($3-c)*100;h=($4-d)*100;t=e+f+g+h;printf "%0.0f %0.0f %0.0f %0.0f\n",(e+1)/t*100,(f+1)/t*100,(g+1)/t*100,(h+1)/t*100}'
   local getcpu='(/cpu[^0-9]/){ t=$2+$3+$4+$5;printf "%i %i %i %i\n", $2,$3,$4,$5}'
   [ "@$1" = "@-h" ] && { printf "$bblack$white cpu $R $byellow$black DELAY(0.1) $R sample DELAY seconds of cpu\n"; return 0; }
-  ( busybox awk "$getcpu" /proc/stat; sleep 0.1
-    busybox awk "$getcpu" /proc/stat; ) | awk "$calcpu"; }
+  ( Bawk "$getcpu" /proc/stat; sleep 0.1
+    Bawk "$getcpu" /proc/stat; ) | Bawk "$calcpu"; }
 
 cpubar(){
   [ "@$1" = "@-h" ] && { printf "$bblack$white cpubar $R $byellow$black WIDTH(40) $R show htop-style cpu bar\n"; return 0; }
-  cpu | awk '{a="                                        ";
+  cpu | Bawk '{a="                                        ";
     printf "%s%s%s", "'$byellow'", substr("usr" a,0,sprintf("%0.0f",$1/2.5)), "'$R'"
     printf "%s%s%s", "'$bred'",    substr("sys" a,0,sprintf("%0.0f",$2/2.5)), "'$R'"
     printf "%s%s%s", "'$bblue'",   substr("nic" a,0,sprintf("%0.0f",$3/2.5)), "'$R'"
@@ -40,7 +40,7 @@ cpubar(){
 ctop(){
   local count=3; [ -n "$1" ] && count="$1"
   [ "@$1" = "@-h" ] && { printf "$bblack$white ctop $R $byellow$black COUNT(3) $R top COUNT cpu-using processes\n"; return 0; }
-  busybox top -bn1 | awk '
+  Btop -bn1 | Bawk '
     BEGIN{for(i=0;i<4;i++)getline}
     {$0=substr($0,38,100);c=$1;$1="";
     gsub(/^[ ]*/,"",$0); gsub(/^\{[ ]*/,"",$0); gsub(/^\[[ ]*/,"",$0);

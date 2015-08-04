@@ -25,10 +25,10 @@ _license(){ echo "
 export OZ_SHELL_OS='c'
 os_ios(){          test -d /private/var/mobile; }
 os_x(){            test -f "$(which system_profiler 2>/dev/null)" 2>/dev/null; }
-os_xnu(){          uname -a |grep -qi xnu; }
-os_debian(){       uname -a |grep -qi debian; }
-os_ubuntu(){       uname -a |grep -qi ubuntu; }
-os_linux(){        uname -a  |grep -qi linux; }
+os_xnu(){          uname -a |Bgrep -qi xnu; }
+os_debian(){       uname -a |Bgrep -qi debian; }
+os_ubuntu(){       uname -a |Bgrep -qi ubuntu; }
+os_linux(){        uname -a  |Bgrep -qi linux; }
 os_tinycore(){     test -e /opt/bootlocal.sh; }
 os_microcore(){    test -e /opt/bootlocal.sh; }
 os_mcx(){          test -e /etc/mcx-dist; }

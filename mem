@@ -24,7 +24,7 @@ _license(){ echo "
   http://www.gnu.org/licenses/gpl.html"; }
 
 # Memory overview
-memusage(){ ps aux | awk '
+memusage(){ ps aux | Bawk '
   {if (NR > 1) print $5;
    if (NR > 2) print "+"}
    END { print "p" }' | dc; }

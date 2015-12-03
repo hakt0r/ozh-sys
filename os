@@ -17,25 +17,25 @@ _license(){ echo "
 
   You should have received a copy of the GNU General Public License
   along with this software; see the file COPYING.  If not, write to
-  the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  the Free Software   Foundation, Inc., 59 Temple Place, Suite 330,
   Boston, MA 02111-1307 USA
 
   http://www.gnu.org/licenses/gpl.html"; }
 
 export OZ_SHELL_OS='c'
-os_ios(){          test -d /private/var/mobile; }
-os_x(){            test -f "$(which system_profiler 2>/dev/null)" 2>/dev/null; }
-os_xnu(){          uname -a |Bgrep -qi xnu; }
-os_debian(){       uname -a |Bgrep -qi debian; }
-os_ubuntu(){       uname -a |Bgrep -qi ubuntu; }
-os_linux(){        uname -a  |Bgrep -qi linux; }
-os_tinycore(){     test -e /opt/bootlocal.sh; }
-os_microcore(){    test -e /opt/bootlocal.sh; }
-os_mcx(){          test -e /etc/mcx-dist; }
-os_openwrt(){      test -e /etc/openwrt_release; }
-os_cygwin(){       /bin/false; }
+os_ios(){            test -d /private/var/mobile; }
+os_x(){              which system_profiler >/dev/null 2>&1; }
+os_xnu(){            uname -a |Bgrep -qi xnu 2>/dev/null; }
+os_debian(){         uname -a |Bgrep -qi debian 2>/dev/null; }
+os_ubuntu(){         uname -a |Bgrep -qi ubuntu 2>/dev/null; }
+os_linux(){          uname -a |Bgrep -qi linux 2>/dev/null; }
+os_tinycore(){       test -e /opt/bootlocal.sh; }
+os_microcore(){      test -e /opt/bootlocal.sh; }
+os_mcx(){            test -e /etc/mcx-dist; }
+os_openwrt(){        test -e /etc/openwrt_release; }
+os_cygwin(){         /bin/false; }
 os_android_rooted(){ test -d /system -a -f $(which su); }
-os_android(){      test -d /system; }
+os_android(){        test -d /system; }
 
   if os_ios;then            OZ_SHELL_OS='apple-ios';
                             OZ_SHELL_OS_ROOTED=true;

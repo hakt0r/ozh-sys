@@ -2,8 +2,8 @@
 
 _copyright(){ echo "
   ozh lightweight shell extensions
-  2008-2014 - anx @ ulzq de (Sebastian Glaser)
-  2008-2014 - fly @ ulzq de
+  2008-2016 - anx @ ulzq de (Sebastian Glaser)
+  2008-2016 - fly @ ulzq de
   Licensed under GNU GPL v3"; }
 _license(){ echo "
   ozh is free software; you can redistribute it and/or modify
@@ -43,12 +43,12 @@ zgmonitor(){
     echo -en "Turning monitor off..."
     xset dpms force off
     echo -en "done.\nCheck:"
-    xset -q|busybox grep"Monitor is"
+    xset -q|busybox grep "Monitor is"
   elif [ $1 = "on" ]; then
     echo -en "Turning monitor on..."
     xset dpms force on
     echo -en "done.\nCheck:"
-    xset -q|busybox grep"Monitor is"
+    xset -q|busybox grep "Monitor is"
   elif [ $1 = "status" ]; then
     xset -q|busybox sed -ne 's/^[ ]*Monitor is //p'
   else
@@ -66,7 +66,6 @@ zgnome_wallpaper() {
 
 zgnome_wallpaper_random() {
   if [ ! -d $1 ]; then echo "provide a directory"; return; fi
-  i="$(find $1 |busybox grep'.jpg$\|.png$' | shuf -n1)"
-  if [ "$(cat ~/.wallblacklist |busybox grep$i)" != "" ]; then zgnome_wallpaper_random $1; return; fi
+  i="$(find $1 |busybox grep '.jpg$\|.png$' | shuf -n1)"
+  if [ "$(cat ~/.wallblacklist |busybox grep $i)" != "" ]; then zgnome_wallpaper_random $1; return; fi
   zgnome_wallpaper $i; }
-
